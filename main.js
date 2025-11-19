@@ -37,7 +37,7 @@ const scenes = {
     choices: [{ text: "Ввести Y", next: "reboot" }],
   },
   reboot: {
-    bg: "backgrounds/1.2.jpg",
+    bg: "backgrounds/1.1.jpg",
     char: "",
     text: "(Сережа) (печатает):\n«Y».\n«Enter».",
     choices: [{ text: "Продолжить", next: "immersion" }],
