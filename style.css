@@ -23,12 +23,22 @@ body, html { height: 100%; overflow: hidden; font-family: 'Courier New', monospa
   background: rgba(0, 0, 0, 0.8); /* Черный, прозрачный */
   padding: 20px; z-index: 3; border-top: 3px solid #00ff99;
   border-radius: 16px; box-shadow: 0 0 40px rgba(0,255,153,0.3);
+  display: flex; /* Добавлено flex для позиционирования */
+  flex-direction: column;
   overflow: hidden; /* Убрана полоса прокрутки */
 }
 
-#text { font-size: 18px; line-height: 1.6; white-space: pre-wrap; color: #00ff99; }
+#text {
+  font-size: 18px; line-height: 1.6; white-space: pre-wrap; color: #00ff99;
+  overflow-y: auto; /* Прокрутка только для текста */
+  flex-grow: 1; /* Текст занимает всё пространство сверху */
+  margin-bottom: 20px;
+}
 
-#choices { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+#choices { 
+  display: flex; flex-direction: column; gap: 10px; 
+  flex-shrink: 0; /* Кнопки не сжимаются, всегда внизу */
+}
 
 /* Кнопки как в пробном проекте */
 .choice-btn {
@@ -51,3 +61,8 @@ body, html { height: 100%; overflow: hidden; font-family: 'Courier New', monospa
   #text { font-size: 14px; }
   .choice-btn { font-size: 14px; padding: 10px 15px; }
 }
+@media (min-width: 769px) {
+  #terminal { width: 70%; } /* 70% на ПК */
+}
+
+::-webkit-scrollbar { display: none; } или ::-webkit-scrollbar { width: 0; } 

@@ -38,13 +38,13 @@ const scenes = {
   },
   reboot: {
     bg: "backgrounds/1.2.jpg",
-    char: "img/gpt.svg",
+    char: "",
     text: "(Сережа) (печатает):\n«Y».\n«Enter».",
     choices: [{ text: "Продолжить", next: "immersion" }],
   },
   immersion: {
     bg: "backgrounds/1.2.jpg",
-    char: "img/gpt.svg",
+    char: "",
     text: 'Офис искажается. Цвета инвертируются. Монитор "стекает" на стол.\n\nЗвук: Глитч-эффекты, нарастающий цифровой шум, звук битого стекла.\n\nЧто за... Видеокарта сгорела? Черт, только не сейчас, у меня нет денег на нов...\n\nЭкран вспыхивает ослепительным светом. Руки Сережи начинают распадаться на пиксели.\n\nЯ... Я не чувствую рук! Какого хрена?!\n\nТекст на экране (мысли):\nМЕНЯ. ТЯНЕТ. ВНУТРЬ.\n\nЧерный экран. Тишина.\n\n...\n\nАбстрактное пространство. Темно-фиолетовое небо с бегущими строками двоичного кода. Под ногами — парящая платформа из полупрозрачного стекла. Вокруг летают гигантские скобки { } и обрывки тегов <div>.\n\n(Сережа) (медленно встает, держась за голову):\nГолова раскалывается... Это сон? Я заснул на клаве?\n\n(Смотрит вниз)\nЯ стою на платформе... висящей в нигде. А вон то облако похоже на кусок CSS-стиля overflow: hidden. Отличный приход, Сережа. Пора завязывать с кофе.',
     choices: [
       { text: "Закричать и позвать на помощь.", next: "shout" },
@@ -53,13 +53,13 @@ const scenes = {
   },
   shout: {
     bg: "backgrounds/1.2.jpg",
-    char: "img/gpt.svg",
+    char: "",
     text: "ЭЙ! КТО-НИБУДЬ! МАКС! НАЧАЛЬНИК! Я УВОЛЬНЯЮСЬ!",
     choices: [{ text: "Продолжить", next: "meeting" }],
   },
   edge: {
     bg: "backgrounds/1.2.jpg",
-    char: "img/gpt.svg",
+    char: "",
     text: "Высота... бесконечная. Внизу только темнота и... удаленные файлы?",
     choices: [{ text: "Продолжить", next: "meeting" }],
   },
@@ -116,31 +116,40 @@ async function typeText(text) {
   textEl.innerHTML = "";
   let i = 0;
   typeSound.loop = true;
-  typeSound.play().catch((err) => console.log("Audio play error:", err)); // Обработка ошибок автоплея
+  typeSound.play().catch((err) => console.log("Audio play error:", err));
 
   while (i < text.length) {
     textEl.textContent += text[i];
     i++;
     await new Promise((r) => setTimeout(r, 50));
+
+    textEl.scrollTop = textEl.scrollHeight;
   }
 
   typeSound.pause();
   typeSound.currentTime = 0;
+  
 }
+
+
 
 // === ПЕРЕХОД СЦЕН ===
 async function showScene(name) {
   const s = scenes[name];
   if (!s) return;
 
+  // фон, персонаж
   bg.style.backgroundImage = `url('${s.bg}')`;
-
   charImg.src = s.char || "";
   charImg.style.display = s.char ? "block" : "none";
 
+  // УБРАТЬ КНОПКИ ПЕРЕД ПЕЧАТЬЮ
+  choicesEl.innerHTML = "";
+
+  // дождаться печати текста
   await typeText(s.text);
 
-  choicesEl.innerHTML = "";
+  // ПОКАЗАТЬ КНОПКИ ТОЛЬКО ПОСЛЕ ПЕЧАТИ
   s.choices.forEach((ch) => {
     const b = document.createElement("button");
     b.className = "choice-btn";
@@ -151,9 +160,11 @@ async function showScene(name) {
       showScene(ch.next);
     };
     choicesEl.appendChild(b);
+
+    textEl.scrollTop = textEl.scrollHeight;
   });
 }
 
+
 // Старт
 showScene("scene1");
-
