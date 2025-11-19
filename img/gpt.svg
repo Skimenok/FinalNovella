@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" preserveAspectRatio="xMidYMid meet">
+
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <radialGradient id="gradSphere" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#b3e5ff"/>
+      <stop offset="50%" stop-color="#5fc3ff"/>
+      <stop offset="100%" stop-color="#1a9eff"/>
+    </radialGradient>
+
+    <linearGradient id="gradCube" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ffd7a6"/>
+      <stop offset="50%" stop-color="#ffa94d"/>
+      <stop offset="100%" stop-color="#ff7f00"/>
+    </linearGradient>
+
+    <linearGradient id="gradPyr" x1="0.2" x2="0.8" y1="0" y2="1">
+      <stop offset="0%" stop-color="#e6d6ff"/>
+      <stop offset="60%" stop-color="#b58cff"/>
+      <stop offset="100%" stop-color="#8a4dff"/>
+    </linearGradient>
+
+    <pattern id="stripe" patternUnits="userSpaceOnUse" width="10" height="10">
+      <rect width="10" height="10" fill="transparent"/>
+      <path d="M0 0 L10 0 L0 10 Z" fill="rgba(255,255,255,0.03)"/>
+    </pattern>
+  </defs>
+
+  <g transform="translate(250,250)">
+
+    <!-- СФЕРА -->
+    <g id="sphere" filter="url(#glow)" opacity="1">
+      <circle r="90" fill="url(#gradSphere)"/>
+      <circle r="90" fill="url(#stripe)" style="mix-blend-mode:overlay"/>
+      <ellipse cx="-25" cy="-30" rx="30" ry="18" fill="rgba(255,255,255,0.35)"/>
+
+      <animateTransform attributeName="transform" type="scale" values="1;0.98;1.02;1" dur="3s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="rotate" values="0;3;-3;0" dur="4s" additive="sum" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0;0;1" dur="3s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- КУБ -->
+    <g id="cube" transform="translate(0,-10)" opacity="0">
+      <path d="M-70,-40 L0,-80 L70,-40 L0,0 Z" fill="url(#gradCube)"/>
+      <path d="M-70,-40 L0,0 L0,80 L-70,40 Z" fill="rgba(255,180,100,0.9)"/>
+      <path d="M70,-40 L0,0 L0,80 L70,40 Z" fill="rgba(255,140,60,0.95)"/>
+
+      <animateTransform attributeName="transform" type="rotate" values="0;8;-8;0" dur="3s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="scale" values="0.9;1.02;0.95;0.9" dur="3s" additive="sum" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;0;0" dur="3s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- ПИРАМИДА -->
+    <g id="pyramid" opacity="0">
+      <path d="M0,-95 L80,60 L-80,60 Z" fill="url(#gradPyr)"/>
+      <path d="M0,-95 L80,60 L0,30 Z" fill="rgba(0,0,0,0.08)"/>
+
+      <animateTransform attributeName="transform" type="skewX" values="0;6;-6;0" dur="3s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="scale" values="0.95;1.05;0.98;0.95" dur="3s" additive="sum" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0;1;0" dur="3s" repeatCount="indefinite"/>
+    </g>
+
+  </g>
+</svg>

@@ -1,0 +1,53 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html { height: 100%; overflow: hidden; font-family: 'Courier New', monospace; }
+
+#bg {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-size: cover; background-position: center; transition: background-image 1s ease;
+  z-index: 1;
+}
+
+#character {
+  position: fixed; top: 0; left: 0; width: 100%; height: 25vh;
+  display: flex; justify-content: center; align-items: center; z-index: 2;
+  transition: opacity 0.5s;
+}
+
+#charImg {
+  max-height: 100%; max-width: 100%; object-fit: contain; transition: opacity 0.5s;
+}
+
+#terminal {
+  position: fixed; bottom: 5vh; left: 50%; transform: translateX(-50%);
+  width: 70%; max-width: 650px; height: 70vh;
+  background: rgba(0, 0, 0, 0.8); /* Черный, прозрачный */
+  padding: 20px; z-index: 3; border-top: 3px solid #00ff99;
+  border-radius: 16px; box-shadow: 0 0 40px rgba(0,255,153,0.3);
+  overflow: hidden; /* Убрана полоса прокрутки */
+}
+
+#text { font-size: 18px; line-height: 1.6; white-space: pre-wrap; color: #00ff99; }
+
+#choices { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Кнопки как в пробном проекте */
+.choice-btn {
+  background: #00ff99; color: #000; border: none;
+  padding: 14px 30px; border-radius: 10px; font-size: 18px;
+  cursor: pointer; transition: 0.3s; text-align: left;
+}
+.choice-btn:hover { background: #00cc77; transform: scale(1.05); }
+
+/* Адаптив */
+@media (max-width: 768px) {
+  #character { height: 30vh; }
+  #terminal { height: 65vh; padding: 15px; width: 90%; transform: none; left: 5%; }
+  #text { font-size: 16px; }
+  .choice-btn { font-size: 16px; padding: 12px 20px; }
+}
+@media (max-width: 480px) {
+  #character { height: 35vh; }
+  #terminal { height: 60vh; padding: 10px; width: 90%; transform: none; left: 5%; }
+  #text { font-size: 14px; }
+  .choice-btn { font-size: 14px; padding: 10px 15px; }
+}
