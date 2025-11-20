@@ -174,7 +174,7 @@ html {
   color: #00ff99;
   padding: 28px;
   border-radius: 12px;
-  border: 2px solid rgba(0,255,153,0.15);
+  border: 2px solid rgb(0, 255, 153);
   backdrop-filter: blur(4px);
 }
 
