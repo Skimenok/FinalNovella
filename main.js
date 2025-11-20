@@ -1,3 +1,5 @@
+// main.js — замените существующий файл этим кодом
+
 let currentScene = "scene1";
 
 const textEl = document.getElementById("text");
@@ -7,6 +9,17 @@ const charImg = document.getElementById("charImg");
 const typeSound = document.getElementById("typeSound");
 const clickSound = document.getElementById("clickSound");
 
+// стартовый экран / кнопка
+const startScreen = document.getElementById("startScreen");
+const startBtn = document.getElementById("startBtn");
+
+// параметры
+const TYPING_SPEED = 40; // ms, +20% быстрее (от 50 -> 40)
+let skipRequested = false;
+let skipBtn = null;
+let audioAllowed = false;
+
+// Сцены (оставил как у тебя — не трогаю)
 const scenes = {
   scene1: {
     bg: "backgrounds/1.1.jpg",
@@ -66,7 +79,7 @@ const scenes = {
   meeting: {
     bg: "backgrounds/1.2.jpg",
     char: "img/gpt.svg",
-    text: 'Воздух перед Сережей начинает мерцать. Полигоны собираются в нестабильную, постоянно меняющуюся форму (шар, куб, пирамида).\n\nЗвук: Механический, но мягкий голос с легким эффектом "autotune".\n\n(???):\nИнициализация завершена. Объект: Сергей. Статус: Частично поврежден.\n\n(Сережа):\nТы кто такой? Глюк? Вирус?\n\n(ЭХО):\nЯ — ЭХО. Системный администратор этого сектора. Приветствую, Сергей.\n\n(Форма ЭХО меняет цвет с синего на тревожный оранжевый)\n\n(ЭХО):\nТы активировал протокол восстановления. Твоя операционная система... то, что вы называете "жизнь"... перегружена мусорными файлами. Депрессия. Рутина. Нереализованные амбиции. Кэш переполнен.\n\n(Сережа):\nСлушай, геометрическая фигура, верни меня в офис. У меня дедлайн через 4 часа. Заказчик меня убьет.\n\n(ЭХО):\nВ текущем состоянии твое возвращение приведет к фатальной ошибке. Ты здесь не случайно.\n\n(Вокруг платформы всплывают экраны с воспоминаниями Сережи: бесконечные правки, одинокие вечера, пустой холодильник).\n\n(ЭХО):\nПосмотри. Твой код неоптимизирован. Чтобы выйти, ты должен провести рефакторинг. Очистить систему от багов.\n\n(Сережа):\nТы хочешь сказать, что я застрял внутри... собственной выгоревшей психики, которая выглядит как сломанный веб-сайт?\n\n(ЭХО):\nГрубая аналогия, но корректная. return true.',
+    text: 'Воздух перед Сережей начинает мерцать. Полигоны собираются в нестабильную, постоянно меняющуюся форму (шар, куб, пирамида).\n\n(???):\nИнициализация завершена. Объект: Сергей. Статус: Частично поврежден.\n\n(Сережа):\nТы кто такой? Глюк? Вирус?\n\n(ЭХО):\nЯ — ЭХО. Системный администратор этого сектора. Приветствую, Сергей.\n\n(Форма ЭХО меняет цвет с синего на тревожный оранжевый)\n\n(ЭХО):\nТы активировал протокол восстановления. Твоя операционная система... то, что вы называете "жизнь"... перегружена мусорными файлами. Депрессия. Рутина. Нереализованные амбиции. Кэш переполнен.\n\n(Сережа):\nСлушай, геометрическая фигура, верни меня в офис. У меня дедлайн через 4 часа. Заказчик меня убьет.\n\n(ЭХО):\nВ текущем состоянии твое возвращение приведет к фатальной ошибке. Ты здесь не случайно.\n\n(Вокруг платформы всплывают экраны с воспоминаниями Сережи: бесконечные правки, одинокие вечера, пустой холодильник).\n\n(ЭХО):\nПосмотри. Твой код неоптимизирован. Чтобы выйти, ты должен провести рефакторинг. Очистить систему от багов.\n\n(Сережа):\nТы хочешь сказать, что я застрял внутри... собственной выгоревшей психики, которая выглядит как сломанный веб-сайт?\n\n(ЭХО):\nГрубая аналогия, но корректная. return true.',
     choices: [
       {
         text: "Я не буду играть в твои игры. Где кнопка выхода?",
@@ -111,60 +124,135 @@ const scenes = {
   },
 };
 
-// === АНИМАЦИЯ ПЕЧАТИ + ЗВУК ===
-async function typeText(text) {
-  textEl.innerHTML = "";
-  let i = 0;
-  typeSound.loop = true;
-  typeSound.play().catch((err) => console.log("Audio play error:", err));
+// --- UI: SKIP button (создаём один раз) ---
+function ensureSkipButton() {
+  if (skipBtn) return;
+  skipBtn = document.createElement("button");
+  skipBtn.id = "skipBtn";
+  skipBtn.className = "choice-btn";
+  skipBtn.textContent = "Скип";
+  Object.assign(skipBtn.style, {
+    position: "absolute",
+    right: "18px",
+    bottom: "18px",
+    display: "none",
+    zIndex: 9998,
+  });
+  skipBtn.onclick = () => {
+    skipRequested = true;
+  };
+  document.body.appendChild(skipBtn);
+}
+ensureSkipButton();
 
-  while (i < text.length) {
-    textEl.textContent += text[i];
-    i++;
-    await new Promise((r) => setTimeout(r, 50));
-
-    textEl.scrollTop = textEl.scrollHeight;
+// --- Попытка разблокировать аудио при нажатии START ---
+async function unlockAudioOnStart() {
+  try {
+    typeSound.currentTime = 0;
+    await typeSound.play();
+    typeSound.pause();
+    typeSound.currentTime = 0;
+    audioAllowed = true;
+  } catch (e) {
+    audioAllowed = false;
   }
-
-  typeSound.pause();
-  typeSound.currentTime = 0;
-  
 }
 
+// --- ПЕЧАТЬ ТЕКСТА ---
+async function typeText(text) {
+  // показать скип
+  skipRequested = false;
+  skipBtn.style.display = "block";
 
+  textEl.innerHTML = "";
+  let i = 0;
 
-// === ПЕРЕХОД СЦЕН ===
+  // если аудио разрешено — запустить звук в loop
+  if (audioAllowed) {
+    try {
+      typeSound.loop = true;
+      typeSound.currentTime = 0;
+      await typeSound.play();
+    } catch (e) {
+      audioAllowed = false;
+    }
+  }
+
+  while (i < text.length) {
+    if (skipRequested) {
+      textEl.textContent = text;
+      break;
+    }
+
+    textEl.textContent += text[i];
+    i++;
+
+    // автоскролл
+    textEl.scrollTop = textEl.scrollHeight;
+
+    await new Promise((r) => setTimeout(r, TYPING_SPEED));
+  }
+
+  // остановка звука
+  if (audioAllowed) {
+    try {
+      typeSound.pause();
+      typeSound.currentTime = 0;
+    } catch (e) {}
+  }
+
+  // скрыть скип
+  skipBtn.style.display = "none";
+}
+
+// --- Переход сцен ---
 async function showScene(name) {
   const s = scenes[name];
   if (!s) return;
 
-  // фон, персонаж
   bg.style.backgroundImage = `url('${s.bg}')`;
   charImg.src = s.char || "";
   charImg.style.display = s.char ? "block" : "none";
 
-  // УБРАТЬ КНОПКИ ПЕРЕД ПЕЧАТЬЮ
+  // очистка опций
   choicesEl.innerHTML = "";
 
-  // дождаться печати текста
+  // печатаем
   await typeText(s.text);
 
-  // ПОКАЗАТЬ КНОПКИ ТОЛЬКО ПОСЛЕ ПЕЧАТИ
+  // создаём кнопки выбора
   s.choices.forEach((ch) => {
     const b = document.createElement("button");
     b.className = "choice-btn";
     b.textContent = ch.text;
     b.onclick = () => {
       clickSound.currentTime = 0;
-      clickSound.play().catch((err) => console.log("Click sound error:", err));
+      clickSound.play().catch(() => {});
       showScene(ch.next);
     };
     choicesEl.appendChild(b);
-
-    textEl.scrollTop = textEl.scrollHeight;
   });
+
+  // автоскролл вниз
+  textEl.scrollTop = textEl.scrollHeight;
 }
 
+// --- Обработчик START ---
+startBtn.addEventListener("click", async () => {
+  // разблокируем аудио при старте (нажатие кнопки — законный user gesture)
+  await unlockAudioOnStart();
 
-// Старт
-showScene("scene1");
+  // скрываем стартовый экран
+  if (startScreen) startScreen.style.display = "none";
+
+  // запускаем сцену (раньше вызывался автоматом — теперь по старту)
+  showScene("scene1");
+});
+
+// Если по какой-то причине окно не показано (например ты удалил HTML), оставим безопасный fallback:
+if (!startScreen || !startBtn) {
+  // запустить сразу (попытка разблокировать аудио заранее)
+  unlockAudioOnStart().then(() => {
+    showScene("scene1");
+  });
+}
