@@ -1,8 +1,6 @@
 body {
   background: url("backgrounds/1.1.jpg") no-repeat center center / cover;
 }
-
-
 * {
   margin: 0;
   padding: 0;
@@ -14,6 +12,41 @@ html {
   overflow: hidden;
   font-family: "Courier New", monospace;
 }
+
+#startScreen{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  font-family: "Courier New", monospace;
+}
+
+#startCard{
+  text-align: center;
+  color: #00ff99;
+  padding: 28px;
+  border-radius: 12px;
+  border: 2px solid rgb(0, 255, 153);
+  backdrop-filter: blur(4px);
+}
+
+#startCard h1{
+  margin-bottom: 18px;
+  font-size: 24px;
+}
+
+/* Скип — переопределим, чтобы был в терминале, но маленький */
+#skipBtn {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  display: none;
+  z-index: 9998;
+}
+
 
 #bg {
   position: fixed;
@@ -79,7 +112,7 @@ html {
 #choices {
   display: flex;
   /* flex-direction: column; */
-  gap: 20px;
+  gap: 30px;
   flex-shrink: 0; /* Кнопки не сжимаются, всегда внизу */
 }
 
@@ -149,45 +182,10 @@ html {
 @media (max-width: 600px) {
     #choices {
     flex-direction: column;
+    gap: 15px;
   }
 }
 
 ::-webkit-scrollbar {
   display: none;
-}
-
-
-/* Стартовый экран */
-#startScreen{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  font-family: "Courier New", monospace;
-}
-
-#startCard{
-  text-align: center;
-  color: #00ff99;
-  padding: 28px;
-  border-radius: 12px;
-  border: 2px solid rgb(0, 255, 153);
-  backdrop-filter: blur(4px);
-}
-
-#startCard h1{
-  margin-bottom: 18px;
-  font-size: 24px;
-}
-
-/* Скип — переопределим, чтобы был в терминале, но маленький */
-#skipBtn {
-  position: absolute;
-  right: 18px;
-  bottom: 18px;
-  display: none;
-  z-index: 9998;
 }
