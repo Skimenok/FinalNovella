@@ -1,34 +1,42 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Новелла - Акт 1</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>System.Void: Код Жизни</title>
+  <link rel="shortcut icon" href="unnamed.jpg" type="image/x-icon">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <!-- Стартовый экран -->
-<div id="startScreen">
-  <div id="startCard">
-    <h1>Новелла — Акт 1</h1>
-    <button id="startBtn" class="choice-btn">Начать</button>
+  <div id="startScreen">
+    <div id="startCard">
+      <h1>Новелла — Акт 1</h1>
+      <button id="startBtn" class="choice-btn">Начать</button>
+    </div>
   </div>
-</div>
 
+  <!-- Два слоя фона для плавной подмены -->
+  <div id="bg" aria-hidden="true"></div>
+  <div id="bg2" aria-hidden="true"></div>
 
-  <div id="bg"></div>
   <div id="character">
-    <img id="charImg" src="" alt="ИИ-персонаж">
+    <img id="charImg" src="" alt="ИИ-персонаж" />
   </div>
+
   <div id="terminal">
-    <button id="skipBtn">Скип</button>
+    <!-- кнопка Скип: видимость управляется скриптом -->
+    <button id="skipBtn" class="choice-btn">Скип</button>
 
     <div id="text"></div>
     <div id="choices"></div>
   </div>
+
+  <!-- Звуки -->
   <audio id="typeSound" src="sounds/computer-keyboard.mp3" preload="auto"></audio>
   <audio id="clickSound" src="sounds/d787fd354d6dabe.mp3" preload="auto"></audio>
+
   <script src="main.js"></script>
 </body>
 </html>

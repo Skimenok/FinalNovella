@@ -1,33 +1,34 @@
-// main.js — полностью переписанная версия с точным соответствием сюжету
+// main.js — интегрированная версия с твоим сюжетом + фичами
+// ---------------------------------------------------------
 
-let currentScene = "scene1";
-
+/* =======================
+   Настройки и элементы UI
+   ======================= */
 const textEl = document.getElementById("text");
 const choicesEl = document.getElementById("choices");
-const bg = document.getElementById("bg");
+const bgA = document.getElementById("bg");
+const bgB = document.getElementById("bg2");
 const charImg = document.getElementById("charImg");
 const typeSound = document.getElementById("typeSound");
 const clickSound = document.getElementById("clickSound");
-
-// стартовый экран / кнопка
 const startScreen = document.getElementById("startScreen");
 const startBtn = document.getElementById("startBtn");
+const skipBtn = document.getElementById("skipBtn");
 
-// параметры
-const TYPING_SPEED = 40; // ms, +20% быстрее (от 50 -> 40)
-let skipRequested = false;
-let skipBtn = null;
+const TYPING_SPEED = 40; // ms per char
 let audioAllowed = false;
-let time = 0;
+let skipRequested = false;
 
-// Отслеживание времени игры
-let startTime = Date.now();
+let gameStartTime = null; // установим при старте
+let currentBg = 1; // 1 -> bgA visible, 2 -> bgB visible
 
 let GAME_STATE = {
   hearts: 4,
 };
 
-// Сцены
+// =======================================================
+//           Здесь — твои сцены (точно как в присланном)
+// =======================================================
 const scenes = {
   scene1: {
     bg: "backgrounds/1.1.jpg",
@@ -122,14 +123,14 @@ const scenes = {
     bg: "backgrounds/1.2.jpg",
     char: "img/gpt.svg",
     text: "(ЭХО):\nВнимание. Обнаружен первый вирусный кластер. Приготовься, Сергей. Компиляция начинается.\n\nПлатформа под ногами начинает дрожать. Сережа перемещается в незнакомое место.\n\n(Сережа):\n«...».\n\nКОНЕЦ АКТА 1",
-    choices: [{ text: "Начать Акт 2", next: "act2_level1_start" }],
+    choices: [{ text: "Вперёд!", next: "act2_level1_start" }],
   },
   // Акт 2: Уровень 1 - Бесконечный цикл
   act2_level1_start: {
     bg: "backgrounds/2.1.jpg",
     char: "img/gpt.svg",
-    text: "Акт 2: Оптимизация Души\n\nУровень 1: Бесконечный цикл\n\nЭХО:\nСмотри. Это твой обычный вторник. Ты берешь задачу, решаешь ее, берешь следующую. Смысла нет. Есть только процесс.\n\n(Сережа):\nНо я делаю важные вещи! Я разрабатываю софт для банков!\n\nЭХО:\nДокажи свою эффективность. Вставай за пульт.",
-    choices: [{ text: "Начать мини-игру", next: "level1_assemble" }],
+    text: "Акт 2: Оптимизация Души\n\nУровень 1: Бесконечный цикл\n\nЭХО:\nСмотри. Это твой обычный вторник. Ты берешь задачу, решаешь ее, берешь следующую. Смысла нет. Есть только процесс.\n\n(Сережа):\nНо я делаю важные вещи! Я разрабатываю софт для банков!\n\nЭХО:\nДокажи свою эффективность.",
+    choices: [{ text: "Вставай за пульт", next: "level1_assemble" }],
   },
   level1_assemble: {
     bg: "backgrounds/2.1.jpg",
@@ -227,7 +228,7 @@ const scenes = {
   level1_clicker: {
     bg: "backgrounds/2.1.jpg",
     char: "img/gpt.svg",
-    text: "Нажимай, чтобы обработать задачи.",
+    text: "Нажимай, чтобы обрабатывать задачи.",
     minigame: {
       type: "clicker",
       data: 30,
@@ -314,7 +315,7 @@ const scenes = {
   level2_guitar_delete: {
     bg: "backgrounds/2.2.jpg",
     char: "img/gpt.svg",
-    text: "Сережа чувствует укол в сердце.\n\nЭХО:\nОперация успешна. Боль удалена.",
+    text: "Сережа чувствует укол в сердце.\n\nЭХО:нОперация успешна. Боль удалена.",
     choices: [{ text: "Продолжить", next: "level2_maria_start" }],
     onEnter: () => GAME_STATE.hearts--,
   },
@@ -353,7 +354,7 @@ const scenes = {
     bg: "backgrounds/2.2.jpg",
     char: "img/gpt.svg",
     text: "ЭХО:\nСтирание личности запущено. Ты становишься эффективнее.",
-    choices: [{ text: "Продолжить задачку 1", next: "level2_task1" }],
+    choices: [{ text: "Продолжить", next: "level2_task1" }],
   },
   level2_maria_suffer: {
     bg: "backgrounds/2.2.jpg",
@@ -373,7 +374,7 @@ const scenes = {
   level2_task1: {
     bg: "backgrounds/2.2.jpg",
     char: "img/gpt.svg",
-    text: "Задачка 1: Реши загадки для стирания.",
+    text: "Реши загадки для стирания.",
     minigame: {
       type: "riddle",
       data: [
@@ -396,7 +397,7 @@ const scenes = {
   level2_task2: {
     bg: "backgrounds/2.2.jpg",
     char: "img/gpt.svg",
-    text: "Задачка 2: Реши загадки для преобразования.",
+    text: "Реши загадки для преобразования.",
     minigame: {
       type: "riddle",
       data: [
@@ -415,7 +416,6 @@ const scenes = {
     },
     choices: [],
   },
-  // Акт 2: Уровень 3 - Зеркальная комната
   act2_level3_start: {
     bg: "backgrounds/2.3.jpg",
     char: "img/gpt.svg",
@@ -442,15 +442,14 @@ const scenes = {
     onEnter: () => GAME_STATE.hearts--,
   },
   level3_drop_weapon: {
-    bg: "backgrounds/2.3.jpg",
-    char: "img/gpt.svg",
+    bg: "backgrounds/2.3.5.png",
+    char: "",
     text: "ЭХО:\nИсточник ошибки не в них. Источник в центре комнаты.\n\nТам сидит маленький мальчик (он сам в детстве) и играет в тетрис.\n\n(Сережа подходит к ребенку.)\n\nРебенок:\nЯ просто хотел делать игры..., чтобы люди становилсь хоть немного счасливеее..., а сейчас...",
     choices: [{ text: "Продолжить", next: "act2_final" }],
   },
-  // Финал Акта 2
   act2_final: {
     bg: "backgrounds/3.1.jpg",
-    char: "img/self.svg",
+    char: "img/d.png",
     text: "Финал Акта 2: Разговор с Собой\n\n(Белая комната. ЭХО трансформируется в спокойную версию Сережи.)\n\n(Сережа):\nТы — это я. Я догадался еще на конвейере.\n\nЭХО-Сережа:\nЯ — твой инстинкт самосохранения. Твоя подсистема безопасности.\nТы помнишь момент перед тем, как попал сюда?",
     choices: [
       { text: "Я пил кофе... третий за час.", next: "act2_final_reveal" },
@@ -460,15 +459,14 @@ const scenes = {
   },
   act2_final_reveal: {
     bg: "backgrounds/3.1.jpg",
-    char: "img/self.svg",
+    char: "img/d.png",
     text: 'ЭХО-Сережа:\nСердце пропустило удар. Твой организм нажал на "Стоп-кран". Если бы я не запустил эту симуляцию, ты бы умер там, в офисе, в 2:15 ночи.\n\n(Сережа):\nТак я в реанимации?\n\nЭХО-Сережа:\nПока нет. Ты просто в отключке.',
-    choices: [{ text: "Продолжить в Акт 3", next: "act3_start" }],
-    onEnter: () => GAME_STATE.hearts--, // Обязательная потеря 1 сердца
+    choices: [{ text: "Продолжить", next: "act3_start" }],
+    onEnter: () => GAME_STATE.hearts--,
   },
-  // Акт 3
   act3_start: {
     bg: "backgrounds/3.1.jpg",
-    char: "",
+    char: "img/d.png",
     text: "Акт 3 - Завершение",
     choices: [{ text: "Продолжить", next: "determine_ending" }],
   },
@@ -509,57 +507,105 @@ const scenes = {
     choices: [{ text: "Завершить игру", next: "game_end" }],
   },
   game_end: {
-    bg: "backgrounds/3.3.jpg",
+    bg: "backgrounds/3.2.jpg",
     char: "",
-    text: `Ты провел в этой игре всего пару минут. Это 0.001% твоей жизни. А что делать дальше решай сам. Удачи!`,
+    // текст будет заменён на реальный таймер в showScene при показе этой сцены
+    text: `Завершение...`,
     choices: [],
   },
 };
 
-// --- UI: SKIP button (создаём один раз) ---
-function ensureSkipButton() {
-  if (skipBtn) return;
-  skipBtn = document.createElement("button");
-  skipBtn.id = "skipBtn";
-  skipBtn.className = "choice-btn";
-  skipBtn.textContent = "Скип";
-  Object.assign(skipBtn.style, {
-    position: "absolute",
-    right: "18px",
-    bottom: "18px",
-    display: "none",
-    zIndex: 9998,
+// =======================================================
+//                Предзагрузка изображений
+// =======================================================
+function preloadImages() {
+  const urls = new Set();
+  Object.values(scenes).forEach((s) => {
+    if (s.bg) urls.add(s.bg);
+    if (s.char) urls.add(s.char);
   });
-  skipBtn.onclick = () => {
-    skipRequested = true;
-  };
-  document.body.appendChild(skipBtn);
+  // также предзагрузим некоторые звуки/микросэффекты (если нужно)
+  urls.forEach((u) => {
+    const img = new Image();
+    img.src = u;
+  });
 }
-ensureSkipButton();
+preloadImages();
 
-// --- Попытка разблокировать аудио при нажатии START ---
+// =======================================================
+//               Плавная смена фона (двухслойная)
+// =======================================================
+function changeBackgroundSmoothly(src) {
+  const currEl = currentBg === 1 ? bgA : bgB;
+
+  // 🔥 новое — если фон не меняется, ничего не анимируем
+  if (currEl.style.backgroundImage === `url("${src}")`) return;
+
+  const nextEl = currentBg === 1 ? bgB : bgA;
+  const prevEl = currentBg === 1 ? bgA : bgB;
+
+  nextEl.style.backgroundImage = `url("${src}")`;
+  nextEl.style.opacity = "1";
+  prevEl.style.opacity = "0";
+
+  currentBg = currentBg === 1 ? 2 : 1;
+}
+
+// =======================================================
+//             Универсальный клик звук для всех кнопок
+// =======================================================
+// Global capture: play click sound on any button click (user asked for "all buttons")
+document.addEventListener("click", (e) => {
+  // Найдём ближайшую кнопку (включая .choice-btn)
+  const btn = e.target.closest && e.target.closest("button");
+  if (!btn) return;
+  // не мешаем воспроизведению разблокировки аудио при старте:
+  if (!audioAllowed) {
+    // попытаться сделать короткую попытку play (если gesture разрешает)
+    try {
+      clickSound.currentTime = 0;
+      clickSound.play().catch(() => {});
+    } catch (err) {}
+    return;
+  }
+  // проиграть звук клика
+  try {
+    clickSound.currentTime = 0;
+    clickSound.play().catch(() => {});
+  } catch (err) {}
+});
+
+// =======================================================
+//              Разблокировка аудио при старте
+// =======================================================
 async function unlockAudioOnStart() {
   try {
-    typeSound.currentTime = 0;
+    // попробовать проиграть короткий фрагмент typeSound и clickSound, потом остановить
     await typeSound.play();
     typeSound.pause();
     typeSound.currentTime = 0;
+
+    await clickSound.play();
+    clickSound.pause();
+    clickSound.currentTime = 0;
+
     audioAllowed = true;
   } catch (e) {
     audioAllowed = false;
   }
 }
 
-// --- ПЕЧАТЬ ТЕКСТА ---
+// =======================================================
+//                   Тайпинг текста (typewriter)
+// =======================================================
 async function typeText(text) {
-  // показать скип
   skipRequested = false;
   skipBtn.style.display = "block";
 
-  textEl.innerHTML = "";
+  textEl.textContent = "";
   let i = 0;
 
-  // если аудио разрешено — запустить звук в loop
+  // play typing loop if allowed
   if (audioAllowed) {
     try {
       typeSound.loop = true;
@@ -575,17 +621,12 @@ async function typeText(text) {
       textEl.textContent = text;
       break;
     }
-
     textEl.textContent += text[i];
     i++;
-
-    // автоскролл
     textEl.scrollTop = textEl.scrollHeight;
-
     await new Promise((r) => setTimeout(r, TYPING_SPEED));
   }
 
-  // остановка звука
   if (audioAllowed) {
     try {
       typeSound.pause();
@@ -593,82 +634,13 @@ async function typeText(text) {
     } catch (e) {}
   }
 
-  // скрыть скип
   skipBtn.style.display = "none";
 }
 
-// --- Переход сцен ---
-async function showScene(name) {
-  const s = scenes[name];
-  if (!s) return;
-
-  bg.style.backgroundImage = `url('${s.bg}')`;
-  charImg.src = s.char || "";
-  charImg.style.display = s.char ? "block" : "none";
-
-  // очистка опций и мини-игр
-  choicesEl.innerHTML = "";
-  const minigameRoot = document.getElementById("minigame-root");
-  if (minigameRoot) minigameRoot.innerHTML = "";
-
-  // печатаем
-  await typeText(s.text);
-
-  // Если есть onEnter, вызвать его
-  if (s.onEnter) s.onEnter();
-
-  // Если в сцене есть мини-игра
-  if (s.minigame) {
-    startMinigame(
-      s.minigame.type,
-      s.minigame.data || s.minigame.opts || s.minigame.tasks,
-      () => {
-        showScene(s.minigame.next);
-      },
-    );
-    return;
-  }
-
-  // создаём кнопки выбора
-  s.choices.forEach((ch) => {
-    const b = document.createElement("button");
-    b.className = "choice-btn";
-    b.textContent = ch.text;
-    b.onclick = () => {
-      clickSound.currentTime = 0;
-      clickSound.play().catch(() => {});
-      showScene(ch.next);
-    };
-    choicesEl.appendChild(b);
-  });
-
-  // автоскролл вниз
-  textEl.scrollTop = textEl.scrollHeight;
-}
-
-// --- Обработчик START ---
-startBtn.addEventListener("click", async () => {
-  // разблокируем аудио при старте (нажатие кнопки — законный user gesture)
-  await unlockAudioOnStart();
-
-  // скрываем стартовый экран
-  if (startScreen) startScreen.style.display = "none";
-
-  // запускаем сцену
-  showScene("scene1");
-});
-
-// Если по какой-то причине окно не показано (например ты удалил HTML), оставим безопасный fallback:
-if (!startScreen || !startBtn) {
-  // запустить сразу (попытка разблокировать аудио заранее)
-  unlockAudioOnStart().then(() => {
-    showScene("scene1");
-  });
-}
-
-// ===============================
-// МИНИ-ИГРЫ — ЕДИНЫЙ ФРЕЙМВОРК
-// ===============================
+// =======================================================
+//               Функции для мини-игр (твой код)
+// =======================================================
+// — я использую прямо тот код, который ты прислал (копия ниже):
 function ensureMinigameRoot() {
   let root = document.getElementById("minigame-root");
   if (!root) {
@@ -682,19 +654,15 @@ function ensureMinigameRoot() {
   }
   return root;
 }
-
 function escapeHtml(s) {
   return s.replace(
     /[&<>]/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]),
   );
 }
-
 function shuffle(arr) {
   return arr.sort(() => Math.random() - 0.5);
 }
-
-// Улучшенная проверка ответа для riddle
 function normalizeAnswer(input) {
   return input
     .toLowerCase()
@@ -702,14 +670,9 @@ function normalizeAnswer(input) {
     .replace(/\(.*?\)/g, "()")
     .replace(/['"`].*?['"`]/g, "''");
 }
-
-// -----------------------------
-// 1) СЛОВЕСНЫЕ ЗАГАДКИ (RIDDLE)
-// -----------------------------
 function startRiddle(list, onDone) {
   const root = ensureMinigameRoot();
   let i = 0;
-
   function render() {
     const r = list[i];
     root.innerHTML = `
@@ -723,15 +686,12 @@ function startRiddle(list, onDone) {
       </div>
       <div id="rMsg" style="color:#ffcc00; text-align:center; min-height:24px;"></div>
     `;
-
     const msg = document.getElementById("rMsg");
     let hintShown = false;
-
     document.getElementById("rCheck").onclick = () => {
       const input = document.getElementById("rIn").value.trim();
       const normalized = normalizeAnswer(input);
       const correctVariants = r.a.map((a) => normalizeAnswer(a));
-
       if (correctVariants.includes(normalized)) {
         i++;
         if (i >= list.length) {
@@ -744,7 +704,6 @@ function startRiddle(list, onDone) {
         msg.textContent = "Неверно, попробуй ещё.";
       }
     };
-
     document.getElementById("rHintBtn").onclick = () => {
       if (!hintShown) {
         msg.textContent = r.hint;
@@ -752,26 +711,18 @@ function startRiddle(list, onDone) {
       }
     };
   }
-
   render();
 }
-
-// -----------------------------
-// 2) ОДИНОЧНЫЕ ВЫБОРЫ (MCQ)
-// -----------------------------
 function startMCQ(list, onDone) {
   const root = ensureMinigameRoot();
   let i = 0;
-
   function render() {
     const q = list[i];
-
     root.innerHTML = `
       <div class="mg-title">${escapeHtml(q.q)}</div>
       <div id="mcq"></div>
       <div id="mcqMsg" class="mg-msg"></div>
     `;
-
     q.options.forEach((opt, index) => {
       let b = document.createElement("button");
       b.className = "choice-btn";
@@ -792,17 +743,11 @@ function startMCQ(list, onDone) {
       document.getElementById("mcq").appendChild(b);
     });
   }
-
   render();
 }
-
-// -----------------------------
-// 3) МНОЖЕСТВЕННЫЕ ВЫБОРЫ (MULTI)
-// -----------------------------
 function startMulti(list, onDone) {
   const root = ensureMinigameRoot();
   let i = 0;
-
   function render() {
     const q = list[i];
     root.innerHTML = `
@@ -811,29 +756,23 @@ function startMulti(list, onDone) {
       <button class="choice-btn" id="mCheck">Проверить</button>
       <div id="mMsg" class="mg-msg"></div>
     `;
-
     q.options.forEach((opt, index) => {
       let el = document.createElement("label");
-      el.innerHTML = `
-        <input type="checkbox" value="${index}">
-        ${escapeHtml(opt)}
-      `;
+      el.innerHTML = `<input type="checkbox" value="${index}"> ${escapeHtml(
+        opt,
+      )}`;
       document.getElementById("mList").appendChild(el);
     });
-
     document.getElementById("mCheck").onclick = () => {
       let chosen = [...document.querySelectorAll("#mList input")]
         .filter((c) => c.checked)
         .map((c) => Number(c.value));
-
       const correct = q.correct.sort().join(",");
       const got = chosen.sort().join(",");
-
       if (correct !== got) {
         document.getElementById("mMsg").textContent = "Неверно.";
         return;
       }
-
       i++;
       if (i < list.length) render();
       else {
@@ -842,13 +781,8 @@ function startMulti(list, onDone) {
       }
     };
   }
-
   render();
 }
-
-// -----------------------------
-// 4) CLICKER
-// -----------------------------
 function startClicker(target, onDone) {
   const root = ensureMinigameRoot();
   root.innerHTML = `
@@ -856,7 +790,6 @@ function startClicker(target, onDone) {
     <button id="cl" class="choice-btn">Клик</button>
     <div id="clCount" class="mg-msg">0</div>
   `;
-
   let c = 0;
   document.getElementById("cl").onclick = () => {
     c++;
@@ -867,10 +800,6 @@ function startClicker(target, onDone) {
     }
   };
 }
-
-// -----------------------------
-// 5) АРКАДА (простая)
-// -----------------------------
 function startArcade(goal, onDone) {
   const root = ensureMinigameRoot();
   root.innerHTML = `
@@ -878,10 +807,8 @@ function startArcade(goal, onDone) {
     <button id="arc" class="choice-btn">Выстрелить</button>
     <div id="arcMsg" class="mg-msg"></div>
   `;
-
   let score = 0;
   document.getElementById("arc").onclick = () => {
-    // псевдо-рандом
     if (Math.random() > 0.4) {
       score++;
       if (score >= goal) {
@@ -893,14 +820,9 @@ function startArcade(goal, onDone) {
     }
   };
 }
-
-// -----------------------------
-// 6) ПРОСТОЙ «ШУТЕР»
-// -----------------------------
 function startShooter(goal, onDone) {
   const root = ensureMinigameRoot();
   const sfx = new Audio("sounds/short-laser-shot_gkcb6rnu.mp3");
-
   root.innerHTML = `
     <div style="color:#00ff99; text-align:center; font-size:18px;">Сбей ${goal} мишеней</div>
     <div style="display:flex; justify-content:center; margin:20px 0;">
@@ -909,14 +831,11 @@ function startShooter(goal, onDone) {
     <div id="shootMsg" style="color:#ffcc00; text-align:center;"></div>
     <div id="shootCount" style="color:#00ff99; text-align:center; font-size:20px;">0 / ${goal}</div>
   `;
-
   let score = 0;
   const countEl = document.getElementById("shootCount");
-
   document.getElementById("shoot").onclick = () => {
     sfx.currentTime = 0;
     sfx.play().catch(() => {});
-
     if (Math.random() > 0.3) {
       score++;
       countEl.textContent = `${score} / ${goal}`;
@@ -934,14 +853,9 @@ function startShooter(goal, onDone) {
     }
   };
 }
-
-// -----------------------------
-// 7) "СОБЕРИ КОД" (ASSEMBLE SIMPLE)
-// -----------------------------
 function startAssemble(tasks, onDone) {
   const root = ensureMinigameRoot();
   let t = 0;
-
   function render() {
     const item = tasks[t];
     const blocks = shuffle(item.blocks.slice());
@@ -953,10 +867,8 @@ function startAssemble(tasks, onDone) {
       <div id="pool" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;"></div>
       <div id="asmMsg" style="color:#ffcc00; text-align:center; min-height:24px;"></div>
     `;
-
     const slots = document.getElementById("slots");
     const pool = document.getElementById("pool");
-
     item.target.forEach(() => {
       const s = document.createElement("button");
       s.className = "choice-btn";
@@ -964,7 +876,6 @@ function startAssemble(tasks, onDone) {
       s.dataset.id = "";
       s.style.minWidth = "100px";
       slots.appendChild(s);
-
       s.onclick = () => {
         if (!s.dataset.id) return;
         const back = item.blocks.find((x) => x.id === s.dataset.id);
@@ -974,7 +885,6 @@ function startAssemble(tasks, onDone) {
         s.textContent = "?";
       };
     });
-
     function refreshPool() {
       pool.innerHTML = "";
       blocks.forEach((b) => {
@@ -994,7 +904,6 @@ function startAssemble(tasks, onDone) {
         pool.appendChild(btn);
       });
     }
-
     function check() {
       const curr = [...slots.children].map((x) => x.dataset.id);
       if (curr.includes("")) return;
@@ -1009,19 +918,12 @@ function startAssemble(tasks, onDone) {
         document.getElementById("asmMsg").textContent = "Неправильный порядок.";
       }
     }
-
     refreshPool();
   }
-
   render();
 }
 
-
-
-
-// -----------------------------
-// Вызов мини-игр
-// -----------------------------
+// Экспортируем старт мини-игры как глобальную функцию (как в старом проекте)
 window.startMinigame = function (type, data, onDone) {
   if (type === "riddle") return startRiddle(data, onDone);
   if (type === "mcq") return startMCQ(data, onDone);
@@ -1031,3 +933,120 @@ window.startMinigame = function (type, data, onDone) {
   if (type === "shooter") return startShooter(data, onDone);
   if (type === "assemble") return startAssemble(data, onDone);
 };
+
+// =======================================================
+//                    Показ сцены
+// =======================================================
+async function showScene(name) {
+  const s = scenes[name];
+  if (!s) return console.warn("Scene not found:", name);
+
+  // плавный фон
+  if (s.bg) changeBackgroundSmoothly(s.bg);
+
+  // персонаж
+  charImg.src = s.char || "";
+  charImg.style.display = s.char ? "block" : "none";
+
+  // очистка мини-игры и кнопок
+  const root = document.getElementById("minigame-root");
+  if (root) root.innerHTML = "";
+  choicesEl.innerHTML = "";
+
+  // Если это финальная сцена "game_end" — вычислим реальное время и вставим текст
+  if (name === "game_end") {
+    const totalMs = Date.now() - (gameStartTime || Date.now());
+    const mins = Math.floor(totalMs / 60000);
+    const secs = Math.floor((totalMs % 60000) / 1000);
+    const lifeMs = 70 * 365.25 * 24 * 60 * 60 * 1000;
+    const percent = "0.0000000001%";
+    s.text = `Ты провёл в этой игре ${mins} минут ${secs} секунд.\nЭто ${percent}% твоей жизни.\nРешай сам. Удачи!`;
+  }
+
+  // печатаем текст
+  await typeText(s.text);
+
+  // эффект onEnter
+  if (s.onEnter) {
+    try {
+      s.onEnter();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // если мини-игра — запустить
+  if (s.minigame) {
+    // мини-игра запускает showScene(next) при окончании
+    startMinigame(
+      s.minigame.type,
+      s.minigame.data || s.minigame.opts || s.minigame.tasks,
+      () => {
+        if (s.minigame.next) showScene(s.minigame.next);
+      },
+    );
+    return;
+  }
+
+  // создать кнопки выбора
+  (s.choices || []).forEach((ch) => {
+    const b = document.createElement("button");
+    b.className = "choice-btn";
+    b.textContent = ch.text;
+    b.onclick = () => {
+      // звук клика воспроизводится глобальным слушателем; но для безопасности можно дублировать:
+      try {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(() => {});
+      } catch (e) {}
+      showScene(ch.next);
+    };
+    choicesEl.appendChild(b);
+  });
+
+  textEl.scrollTop = textEl.scrollHeight;
+}
+
+// =======================================================
+//                   Обработчики UI
+// =======================================================
+
+// Скип: показывает во время типинга и переводит в конец
+skipBtn.addEventListener("click", () => {
+  skipRequested = true;
+});
+
+// Старт игры
+startBtn.addEventListener("click", async () => {
+  // Записываем время старта
+  gameStartTime = Date.now();
+
+  // разблокируем аудио (gesture)
+  await unlockAudioOnStart();
+
+  // скрываем стартовый экран
+  if (startScreen) startScreen.style.display = "none";
+
+  // показываем первую сцену
+  showScene("scene1");
+});
+
+// fallback: если нет старт-кнопки — запустить сразу
+if (!startScreen || !startBtn) {
+  unlockAudioOnStart().then(() => {
+    gameStartTime = Date.now();
+    showScene("scene1");
+  });
+}
+
+// =======================================================
+//                Доп. мелочи (безопасность)
+// =======================================================
+
+// скрывать skip по умолчанию — уже сделано в CSS. skipBtn показывается функцией typeText
+// Обработчик глобального звука уже подключён выше
+
+// =======================================================
+//                        Готово
+// =======================================================
+console.log("main.js loaded — сюжет и механики инициализированы.");
