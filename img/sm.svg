@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <!-- Фон круга -->
+  <circle cx="50" cy="50" r="50" fill="#00FF99"/>
+
+  <!-- Глаза -->
+  <text x="35" y="40" font-family="monospace" font-size="12" fill="#000">:</text>
+  <text x="65" y="40" font-family="monospace" font-size="12" fill="#000">:</text>
+
+  <!-- Рот -->
+  <text x="50" y="65" font-family="monospace" font-size="20" fill="#000"
+        text-anchor="middle" dominant-baseline="middle"
+        transform="rotate(90,50,65)">)</text>
+</svg>

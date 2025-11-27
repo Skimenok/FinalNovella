@@ -2,109 +2,218 @@
 body {
   background: #000;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body, html { height: 100%; overflow: hidden; font-family: "Courier New", monospace; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body,
+html {
+  height: 100%;
+  overflow: hidden;
+  font-family: "Courier New", monospace;
+}
 
 /* Стартовый экран */
 #startScreen {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex; justify-content: center; align-items: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 9999;
 }
 #startCard {
-  text-align: center; color: #00ff99; padding: 28px;
-  border-radius: 12px; border: 2px solid rgb(0,255,153);
+  text-align: center;
+  color: #00ff99;
+  padding: 28px;
+  border-radius: 12px;
+  border: 2px solid rgb(0, 255, 153);
   backdrop-filter: blur(4px);
 }
-#startCard h1 { margin-bottom: 18px; font-size: 24px; }
+#startCard h1 {
+  margin-bottom: 18px;
+  font-size: 24px;
+}
 
 /* Два слоя фона */
-#bg, #bg2 {
-  position: fixed; inset: 0;
-  background-size: cover; background-position: center;
+#bg,
+#bg2 {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
   transition: opacity 0.45s ease-out;
   z-index: 1;
 }
-#bg2 { opacity: 0; }
+#bg2 {
+  opacity: 0;
+}
 
 /* Персонаж */
 #character {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 25vh;
-  display: flex; justify-content: center; align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 25vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 2;
 }
-#charImg { max-height: 100%; max-width: 100%; object-fit: contain; }
+#charImg {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
 
 /* Терминал */
 #terminal {
-  position: fixed; bottom: 5vh; left: 50%;
+  position: fixed;
+  bottom: 5vh;
+  left: 50%;
   transform: translateX(-50%);
-  width: 70%; height: 70vh;
-  background: rgba(0,0,0,0.8);
-  padding: 20px; z-index: 3;
-  border-top: 3px solid #00ff99; border-radius: 16px;
-  box-shadow: 0 0 40px rgba(0,255,153,0.3);
-  display: flex; flex-direction: column; overflow: hidden;
+  width: 70%;
+  height: 70vh;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  z-index: 3;
+  border-top: 3px solid #00ff99;
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(0, 255, 153, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Скип (по умолчанию скрыт, скрипт покажет) */
 #skipBtn {
-  position: absolute; right: 18px; bottom: 18px;
-  display: none; z-index: 9998;
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  display: none;
+  z-index: 9998;
 }
 
 /* Текст */
 #text {
-  font-size: 18px; line-height: 1.6; white-space: pre-wrap;
-  color: #00ff99; overflow-y: auto; flex-grow: 1; margin-bottom: 20px;
+  font-size: 18px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: #00ff99;
+  overflow-y: auto;
+  flex-grow: 1;
+  margin-bottom: 20px;
 }
 
 /* Выборы */
 #choices {
-  display: flex; gap: 30px; justify-content: center;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
 }
 
 /* Кнопки */
 .choice-btn {
-  background: #00ff99; color: #000; border: none;
-  padding: 14px 30px; border-radius: 10px; font-size: 21px;
-  cursor: pointer; transition: 0.3s;
+  background: #00ff9900;
+  color: #00ff99;
+  padding: 14px 30px;
+  border-radius: 10px;
+  font-size: 21px;
+  cursor: pointer;
+  transition: 0.3s;
+  border: 2px solid #00ff99;
 }
-.choice-btn:hover { background: #00cc77; transform: scale(1.05); }
+.choice-btn:hover {
+  background: #00ff99;
+  color: #000;
+  transform: scale(1.05);
+}
 
 /* Мини-игры */
-#minigame-root { color: #00ff99; font-size: 16px; display: flex; flex-direction: column; gap: 10px; width: 50%; margin: auto; }
-.mg-title { font-size: 18px; color: #00ff99; text-align: center; }
-.mg-input { background: rgba(255,255,255,0.1); border: 1px solid #00ff99; color: #00ff99; padding: 10px; border-radius: 5px; font-family: "Courier New", monospace; }
-.mg-msg { color: #ffcc00; text-align: center; }
+#minigame-root {
+  color: #00ff99;
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 50%;
+  margin: auto;
+}
+.mg-title {
+  font-size: 18px;
+  color: #00ff99;
+  text-align: center;
+}
+.mg-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #00ff99;
+  color: #00ff99;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: "Courier New", monospace;
+  font-size: 18px;
+}
+.mg-msg {
+  color: #ffcc00;
+  text-align: center;
+}
 
 /* Адаптив */
 @media (max-width: 768px) {
-  #character { height: 30vh; }
-  #terminal { height: 65vh; width: 90%; left: 5%; transform: none; }
-  #text { font-size: 16px; }
-  .choice-btn { font-size: 18px; padding: 12px 20px; }
+  #character {
+    height: 30vh;
+  }
+  #terminal {
+    height: 65vh;
+    width: 90%;
+    left: 5%;
+    transform: none;
+  }
+  #text {
+    font-size: 16px;
+  }
+  .choice-btn {
+    font-size: 18px;
+    padding: 12px 20px;
+  }
   #charImg {
     position: relative;
-    bottom: 20px;
-}
+    bottom: 40px;
+  }
 }
 @media (max-width: 480px) {
-  #character { height: 35vh; }
-  #terminal { height: 65vh; width: 90%; left: 5%; transform: none; }
-  #text { font-size: 14px; }
-  .choice-btn { font-size: 14px; padding: 10px 15px; }
+  #character {
+    height: 35vh;
+  }
+  #terminal {
+    height: 72vh;
+    width: 90%;
+    left: 5%;
+    transform: none;
+  }
+  #text {
+    font-size: 14px;
+  }
+  .choice-btn {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
 }
 @media (max-width: 600px) {
-  #choices { flex-direction: column; gap: 15px; }
+  #choices {
+    flex-direction: column;
+    gap: 15px;
+  }
 }
 
-::-webkit-scrollbar { display: none; }
-
+::-webkit-scrollbar {
+  display: none;
+}
 
 div#minigame-root {
-    margin: auto;
-    width: 90%;
+  margin: auto;
+  width: 90%;
 }
