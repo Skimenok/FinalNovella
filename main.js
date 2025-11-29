@@ -98,7 +98,7 @@ const scenes = {
   },
   irony: {
     bg: "backgrounds/1.2.jpg",
-    char: "img/sm.svg",
+    char: "img/tyh.svg",
     text: "(ЭХО):\n(Меняет форму на смайлик из символов ASCII) :)\nТЗ формируется динамически. Твоя задача — выжить и писать код.",
     choices: [{ text: "Продолжить", next: "final" }],
   },
@@ -129,7 +129,7 @@ const scenes = {
       type: "assemble",
       data: [
         {
-          title: "Собери console.log('Привет');",
+          title: "Расположи блоки кода в правильном порядке",
           blocks: [
             { id: "1", text: "console." },
             { id: "2", text: "log(" },
@@ -139,7 +139,7 @@ const scenes = {
           target: ["1", "2", "3", "4"],
         },
         {
-          title: "Собери document.createElement('div')",
+          title: "Расположи блоки кода в правильном порядке",
           blocks: [
             { id: "1", text: "document." },
             { id: "2", text: "createElement(" },
@@ -149,7 +149,7 @@ const scenes = {
           target: ["1", "2", "3", "4"],
         },
         {
-          title: "Собери button.addEventListener('click', handler)",
+          title: "Расположи блоки кода в правильном порядке",
           blocks: [
             { id: "1", text: "button." },
             { id: "2", text: "addEventListener(" },
@@ -160,7 +160,7 @@ const scenes = {
           target: ["1", "2", "3", "4", "5"],
         },
         {
-          title: "Собери const x = input.value;",
+          title: "Расположи блоки кода в правильном порядке",
           blocks: [
             { id: "1", text: "const x = " },
             { id: "2", text: "input." },
@@ -169,7 +169,7 @@ const scenes = {
           target: ["1", "2", "3"],
         },
         {
-          title: "Собери element.textContent = 'Готово';",
+          title: "Расположи блоки кода в правильном порядке",
           blocks: [
             { id: "1", text: "element." },
             { id: "2", text: "textContent = " },
